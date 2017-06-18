@@ -103,7 +103,15 @@ public class guiarticulos extends JFrame implements ActionListener {
 			actionPerformedBtnBuscar(arg0);
 		}
 	}
+	private void limpiartabla(){
+		int total=modelo.getRowCount();
+		for (int i=0;i<total;i++)
+			modelo.removeRow(i);
+
+		
+	}
 	protected void actionPerformedBtnBuscar(ActionEvent arg0) {
+	limpiartabla();
 	buscar();	
 	}
 	private void buscar(){
