@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import entidades.articulo;
 import jdbc.jdbcarticulo;
 
 import javax.swing.JLabel;
@@ -30,6 +31,9 @@ private JComboBox cboEmpaque;
 	private List<Integer> categoriasId;
 	private List<Integer> empaquesId;
 	private JButton btnGrabar;
+	private guiregarticulo instance;
+	private articulo articuloEdit;
+	private jdbcarticulo jdbc;
 
 	/**
 	 * Launch the application.
@@ -38,7 +42,7 @@ private JComboBox cboEmpaque;
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					guiregarticulo frame = new guiregarticulo();
+					guiregarticulo frame = new guiregarticulo();					
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -50,7 +54,9 @@ private JComboBox cboEmpaque;
 	/**
 	 * Create the frame.
 	 */
-	public guiregarticulo() {
+	public guiregarticulo() {		
+		jdbc =new jdbcarticulo();
+		instance = this;
 		setTitle("Registro de Articulo");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -78,11 +84,11 @@ private JComboBox cboEmpaque;
 		txtDescripcion.setColumns(10);
 		
 		cboCategoria = new JComboBox();
-		cboCategoria.setBounds(116, 135, 94, 20);
+		cboCategoria.setBounds(116, 135, 130, 20);
 		contentPane.add(cboCategoria);
 		
 		cboEmpaque = new JComboBox();
-		cboEmpaque.setBounds(116, 182, 73, 20);
+		cboEmpaque.setBounds(116, 182, 130, 20);
 		contentPane.add(cboEmpaque);
 		
 		JLabel lblCategoria = new JLabel("Categoria");
@@ -99,10 +105,15 @@ private JComboBox cboEmpaque;
 		contentPane.add(btnGrabar);
 		
 		JButton btnCancelar = new JButton("Cancelar");
+		btnCancelar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				instance.setVisible(false);
+			}
+		});
 		btnCancelar.setBounds(280, 182, 89, 23);
 		contentPane.add(btnCancelar);
-		jdbcarticulo cart=new jdbcarticulo();
-		ResultSet rs=cart.listarcategorias();
+		
+		ResultSet rs = jdbc.listarcategorias();
 		categoriasId = new ArrayList<>();
 		try {
 			while(rs.next()){
@@ -113,10 +124,8 @@ private JComboBox cboEmpaque;
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		cboCategoria.getSelectedIndex();
-		
 	
-	    rs=cart.listarempaques();
+	    rs= jdbc.listarempaques();
 		empaquesId = new ArrayList<>();
 		try {
 			while(rs.next()){
@@ -126,16 +135,28 @@ private JComboBox cboEmpaque;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}		
+	}	
+	
+	public void setCodArticulo(String codArticulo){
+		if(!codArticulo.isEmpty()){			
+			articuloEdit = jdbc.buscar(codArticulo);
+			txtCodigo.setEnabled(false);
+			if(articuloEdit != null){
+				txtCodigo.setText(articuloEdit.getCodigo());
+				txtDescripcion.setText(articuloEdit.getDescripcion());
+				cboCategoria.setSelectedItem(articuloEdit.getCategoria());
+				cboEmpaque.setSelectedItem(articuloEdit.getEmpaque());
+			}
 		}
-		cboEmpaque.getSelectedIndex();
 	}
+	
 	private void grabar(){
 		String codigo=txtCodigo.getText();
-		String descripcion=txtDescripcion.getText();
+		String descripcion=txtDescripcion.getText();		
 		int categoria=categoriasId.get(cboCategoria.getSelectedIndex());
-		int empaque=empaquesId.get(cboEmpaque.getSelectedIndex());
-		jdbcarticulo art=new jdbcarticulo();
-		art.registrar(codigo, descripcion, categoria, empaque);
+		int empaque=empaquesId.get(cboEmpaque.getSelectedIndex());		
+		jdbc.guardar(codigo, descripcion, categoria, empaque);
 		
 	}
 	public void actionPerformed(ActionEvent arg0) {
@@ -146,7 +167,8 @@ private JComboBox cboEmpaque;
 	protected void actionPerformedBtnGrabar(ActionEvent arg0) {
 		grabar();
 	}
-	}
+	
+}
 	
 	
 
