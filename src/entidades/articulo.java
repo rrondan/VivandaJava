@@ -1,13 +1,13 @@
 package entidades;
 
-public class articulo {
+public class Articulo {
 String codigo,descripcion,categoria,empaque;
 
-public articulo() {
+public Articulo() {
 	super();	
 }
 
-public articulo(String codigo, String descripcion, String categoria, String empaque) {
+public Articulo(String codigo, String descripcion, String categoria, String empaque) {
 	super();
 	this.codigo = codigo;
 	this.descripcion = descripcion;
