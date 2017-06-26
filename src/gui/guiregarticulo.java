@@ -110,6 +110,7 @@ private JComboBox cboEmpaque;
 				instance.setVisible(false);
 			}
 		});
+		
 		btnCancelar.setBounds(280, 182, 89, 23);
 		contentPane.add(btnCancelar);
 		
@@ -136,6 +137,7 @@ private JComboBox cboEmpaque;
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 	}	
 	
 	public void setCodArticulo(String codArticulo){
