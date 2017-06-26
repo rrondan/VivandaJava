@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import entidades.articulo;
+import entidades.Articulo;
 import jdbc.jdbcarticulo;
 
 import javax.swing.JLabel;
@@ -30,9 +30,9 @@ private JComboBox cboEmpaque;
 	private JTextField txtDescripcion;
 	private List<Integer> categoriasId;
 	private List<Integer> empaquesId;
-	private JButton btnGrabar;
-	private guiregarticulo instance;
-	private articulo articuloEdit;
+	private JButton btnGrabar;	
+	private JButton btnCancelar;
+	private Articulo articuloEdit;
 	private jdbcarticulo jdbc;
 
 	/**
@@ -55,10 +55,9 @@ private JComboBox cboEmpaque;
 	 * Create the frame.
 	 */
 	public guiregarticulo() {		
-		jdbc =new jdbcarticulo();
-		instance = this;
+		jdbc =new jdbcarticulo();		
 		setTitle("Registro de Articulo");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -104,13 +103,8 @@ private JComboBox cboEmpaque;
 		btnGrabar.setBounds(280, 134, 89, 23);
 		contentPane.add(btnGrabar);
 		
-		JButton btnCancelar = new JButton("Cancelar");
-		btnCancelar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				instance.setVisible(false);
-			}
-		});
-		
+		btnCancelar = new JButton("Cancelar");
+		btnCancelar.addActionListener(this);		
 		btnCancelar.setBounds(280, 182, 89, 23);
 		contentPane.add(btnCancelar);
 		
@@ -137,9 +131,26 @@ private JComboBox cboEmpaque;
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
-		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		
 	}	
 	
+	public void actionPerformed(ActionEvent arg0) {
+		if (arg0.getSource() == btnGrabar) {
+			actionPerformedBtnGrabar(arg0);
+		}
+		if (arg0.getSource() == btnCancelar) {
+			actionPerformedBtnCancelar(arg0);
+		}
+	}
+	protected void actionPerformedBtnGrabar(ActionEvent arg0) {
+		grabar();
+	}
+
+	protected void actionPerformedBtnCancelar(ActionEvent arg0) {
+		setVisible(false);
+	}
+	
+	// funciones privadas
 	public void setCodArticulo(String codArticulo){
 		if(!codArticulo.isEmpty()){			
 			articuloEdit = jdbc.buscar(codArticulo);
@@ -153,6 +164,13 @@ private JComboBox cboEmpaque;
 		}
 	}
 	
+	public void limpiarGui(){
+			txtCodigo.setText("");
+			txtDescripcion.setText("");
+			cboCategoria.setSelectedIndex(0);
+			cboEmpaque.setSelectedIndex(0);
+	}
+	
 	private void grabar(){
 		String codigo=txtCodigo.getText();
 		String descripcion=txtDescripcion.getText();		
@@ -161,14 +179,7 @@ private JComboBox cboEmpaque;
 		jdbc.guardar(codigo, descripcion, categoria, empaque);
 		
 	}
-	public void actionPerformed(ActionEvent arg0) {
-		if (arg0.getSource() == btnGrabar) {
-			actionPerformedBtnGrabar(arg0);
-		}
-	}
-	protected void actionPerformedBtnGrabar(ActionEvent arg0) {
-		grabar();
-	}
+	
 	
 }
 	
