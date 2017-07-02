@@ -45,7 +45,7 @@ public class jdbcarticulo{
 		return articulos;
 	}
 	
-	public Articulo buscar(String codigo){
+	public Articulo buscarPorCodigo(String codigo){
 		art = null;
 		try {					
 			Connection cn = c.getConnection();
@@ -65,8 +65,23 @@ public class jdbcarticulo{
 		return art;
 	}
 	
+	public ResultSet buscar(String descripcion){
+		ResultSet rs = null;
+		try {					
+			Connection cn = c.getConnection();
+			String sql= "select a.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque where LOWER(a.des_articulo) like ?";
+			PreparedStatement ps =(PreparedStatement) cn.prepareStatement(sql);
+			ps.setString(1, "%" + descripcion.toLowerCase() + "%");
+			rs=ps.executeQuery();						
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return rs;
+	}
+	
 	public void guardar(String cod,String des,int cat,int emp){
-		Articulo art = buscar(cod);
+		Articulo art = buscarPorCodigo(cod);
 		if(art != null){
 			editar(cod,des,cat,emp);
 		}else{

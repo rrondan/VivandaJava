@@ -27,6 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
+import java.awt.event.InputMethodListener;
+import java.awt.event.InputMethodEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class guiarticulos extends JFrame implements ActionListener {
 
@@ -34,7 +38,6 @@ public class guiarticulos extends JFrame implements ActionListener {
 	private JTextField txtcodigoarti;
 	private JTable tblarticulo;
 	private DefaultTableModel modelo;
-	private JButton btnBuscar;
 	private JButton btnModificar;
 	private JButton btnNuevo;
 	private JButton btnEliminar;
@@ -83,12 +86,19 @@ public class guiarticulos extends JFrame implements ActionListener {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		JLabel lblCodigo = new JLabel("Codigo a Buscar:");
+		JLabel lblCodigo = new JLabel("Articulo a Buscar:");
 		lblCodigo.setBounds(26, 29, 103, 14);
 		contentPane.add(lblCodigo);
 		
-		txtcodigoarti = new JTextField();
-		txtcodigoarti.setBounds(132, 26, 159, 20);
+		txtcodigoarti = new JTextField();		
+		txtcodigoarti.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				limpiartabla();
+				buscar();
+			}
+		});
+		txtcodigoarti.setBounds(141, 26, 229, 20);
 		contentPane.add(txtcodigoarti);
 		txtcodigoarti.setColumns(10);
 		
@@ -99,11 +109,6 @@ public class guiarticulos extends JFrame implements ActionListener {
 		tblarticulo = new JTable();
 		scrollPane.setViewportView(tblarticulo);
 		tblarticulo.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
-		btnBuscar = new JButton("Buscar");
-		btnBuscar.addActionListener(this);
-		btnBuscar.setBounds(301, 25, 89, 23);
-		contentPane.add(btnBuscar);
 		
 		btnNuevo = new JButton("Nuevo");
 		btnNuevo.addActionListener(this);
@@ -179,9 +184,6 @@ public class guiarticulos extends JFrame implements ActionListener {
 	}
 	// action listener implement
 	public void actionPerformed(ActionEvent arg0) {
-		if (arg0.getSource() == btnBuscar) {
-			actionPerformedBtnBuscar(arg0);
-		}
 		if (arg0.getSource() == btnNuevo) {
 			actionPerformedBtnAgregar(arg0);
 		}
@@ -201,10 +203,6 @@ public class guiarticulos extends JFrame implements ActionListener {
 			actionPerformedBtnCancelar(arg0);
 		}
 		
-	}
-	protected void actionPerformedBtnBuscar(ActionEvent arg0) {
-		limpiartabla();
-		buscar();	
 	}
 	protected void actionPerformedBtnAgregar(ActionEvent arg0) {
 			articuloPanel.setVisible(true);			
@@ -297,14 +295,16 @@ public class guiarticulos extends JFrame implements ActionListener {
 	}	
 	private void buscar(){
 		try{			
-			String codigo=txtcodigoarti.getText().trim();
-			Articulo art= jdbc.buscar(codigo);          
-			Object[] fila=new Object[4];          
-			fila[0]=art.getCodigo();          
-			fila[1]=art.getDescripcion();          
-			fila[2]=art.getCategoria();          
-			fila[3]=art.getEmpaque();          
-			modelo.addRow(fila);
+			String descripcion=txtcodigoarti.getText().trim();
+			ResultSet rs = jdbc.buscar(descripcion);
+			while(rs.next()){
+				Object[] fila=new Object[4];          
+				fila[0] = rs.getString("cod_articulo");          
+				fila[1] = rs.getString("des_articulo");          
+				fila[2] = rs.getString("categoria");          
+				fila[3] = rs.getString("empaque");          
+				modelo.addRow(fila);
+			}
 		}catch (Exception ex){			
 			
 		}
@@ -333,7 +333,7 @@ public class guiarticulos extends JFrame implements ActionListener {
 	}
 	private void llenarCamposPorCodigo(String codArticulo){
 		if(!codArticulo.isEmpty()){			
-			Articulo articuloEdit = jdbc.buscar(codArticulo);
+			Articulo articuloEdit = jdbc.buscarPorCodigo(codArticulo);
 			txtCodigo.setEnabled(false);
 			if(articuloEdit != null){
 				txtCodigo.setText(articuloEdit.getCodigo());
@@ -344,6 +344,13 @@ public class guiarticulos extends JFrame implements ActionListener {
 		}
 	}
 	private void grabar(){
+		if(txtCodigo.isEnabled()){
+			Articulo art = jdbc.buscarPorCodigo(txtCodigo.getText());
+			if(art != null){
+				JOptionPane.showMessageDialog(null, "Ya existe un articulo con ese codigo, porfavor cambie el codigo.");
+				return;
+			}
+		}
 		String codigo=txtCodigo.getText();
 		String descripcion=txtDescripcion.getText();		
 		int categoria=categoriasId.get(cboCategoria.getSelectedIndex());

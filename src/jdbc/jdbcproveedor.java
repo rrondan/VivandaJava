@@ -40,7 +40,7 @@ public class jdbcproveedor {
 		return proveedores;
 	}
 	
-	public Proveedor buscar(String codigo){		
+	public Proveedor buscarPorCodigo(String codigo){		
 		try {					
 			Connection cn = c.getConnection();
 			String sql="select * from proveedores where cod_proveedor = ?";
@@ -61,8 +61,22 @@ public class jdbcproveedor {
 		return null;
 	}
 	
+	public ResultSet buscar(String nom_proveedor){
+		ResultSet rs = null;
+		try {					
+			Connection cn = c.getConnection();
+			String sql="select * from proveedores where LOWER(razonsocial) like ?";
+			PreparedStatement ps =(PreparedStatement) cn.prepareStatement(sql);
+			ps.setString(1, "%" + nom_proveedor.toLowerCase() + "%");
+			rs = ps.executeQuery();			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return rs;
+	}
 	public void guardar(String cod, String raz, String ruc, String dir, String tel, String cor){
-		Proveedor pro = buscar(cod);
+		Proveedor pro = buscarPorCodigo(cod);
 		if(pro != null){
 			editar(cod,raz,ruc,dir,tel,cor);
 		}else{

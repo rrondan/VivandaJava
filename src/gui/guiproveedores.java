@@ -20,6 +20,7 @@ import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.sql.ResultSet;
 import java.util.List;
 import java.awt.event.ActionEvent;
 
@@ -82,12 +83,12 @@ public class guiproveedores extends JFrame implements ActionListener {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		JLabel lblCodigoABuscar = new JLabel("Codigo a Buscar: ");
-		lblCodigoABuscar.setBounds(29, 32, 109, 14);
+		JLabel lblCodigoABuscar = new JLabel("Proveedor a Buscar: ");
+		lblCodigoABuscar.setBounds(29, 32, 127, 14);
 		contentPane.add(lblCodigoABuscar);
 		
 		txtCodigoBuscar = new JTextField();
-		txtCodigoBuscar.setBounds(127, 29, 199, 20);
+		txtCodigoBuscar.setBounds(150, 29, 199, 20);
 		contentPane.add(txtCodigoBuscar);
 		txtCodigoBuscar.setColumns(10);
 		
@@ -100,7 +101,7 @@ public class guiproveedores extends JFrame implements ActionListener {
 		
 		btnBuscar = new JButton("Buscar");
 		btnBuscar.addActionListener(this);
-		btnBuscar.setBounds(336, 28, 128, 23);
+		btnBuscar.setBounds(359, 28, 105, 23);
 		contentPane.add(btnBuscar);
 		
 		btnListarTodos = new JButton("Listar Todos");
@@ -273,16 +274,18 @@ public class guiproveedores extends JFrame implements ActionListener {
 	
 	private void buscar(){
 		try{			
-			String codigo= txtCodigoBuscar.getText().trim();
-			Proveedor pro= jdbc.buscar(codigo);          
-			Object[] fila=new Object[6];          
-			fila[0]=pro.getCodigo();          
-			fila[1]=pro.getRUC();          
-			fila[2]=pro.getRazonSocial();          
-			fila[3]=pro.getDireccion();
-			fila[4]=pro.getTelefono();
-			fila[5]=pro.getCorreo();
-			modelo.addRow(fila);
+			String nom_proveedor= txtCodigoBuscar.getText().trim();
+			ResultSet rs = jdbc.buscar(nom_proveedor);          
+			while(rs.next()){
+				Object[] fila=new Object[6];          
+				fila[0] = rs.getString("cod_proveedor");          
+				fila[1] = rs.getString("ruc");
+				fila[2] = rs.getString("razonsocial");
+				fila[3] = rs.getString("direccion");
+				fila[4] = rs.getString("telefono");
+				fila[5] = rs.getString("correo");
+				modelo.addRow(fila);
+			}
 		}catch (Exception ex){			
 			
 		}
@@ -336,6 +339,13 @@ public class guiproveedores extends JFrame implements ActionListener {
 	}
 	
 	private void guardar(){
+		if(txtCodigo.isEnabled()){
+			Proveedor pro = jdbc.buscarPorCodigo(txtCodigo.getText());
+			if(pro != null){
+				JOptionPane.showMessageDialog(null, "Ya existe un proveedor con ese codigo, porfavor cambie el codigo.");
+				return;
+			}
+		}
 		String codigo=txtCodigo.getText();
 		String razonSocial = txtRazonSocial.getText();
 		String ruc = txtRuc.getText();
@@ -360,7 +370,7 @@ public class guiproveedores extends JFrame implements ActionListener {
 	}
 	private void llenarCamposPorCodigo(String codProveedor){
 		if(!codProveedor.isEmpty()){			
-			Proveedor proveedorEditar = jdbc.buscar(codProveedor);
+			Proveedor proveedorEditar = jdbc.buscarPorCodigo(codProveedor);
 			txtCodigo.setEnabled(false);
 			if(proveedorEditar != null){
 				txtCodigo.setText(proveedorEditar.getCodigo());
