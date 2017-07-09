@@ -16,6 +16,7 @@ import jdbc.jdbcproveedor;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
@@ -98,6 +99,7 @@ public class guiproveedores extends JFrame implements ActionListener {
 		
 		tblProveedores = new JTable();
 		scrollPane.setViewportView(tblProveedores);
+		tblProveedores.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		btnBuscar = new JButton("Buscar");
 		btnBuscar.addActionListener(this);
@@ -228,6 +230,7 @@ public class guiproveedores extends JFrame implements ActionListener {
 	}
 	protected void actionPerformedBtnAgregar(ActionEvent arg0) {
 			limpiarCampos();
+			txtCodigo.setEditable(true);
 			if(!proveedorPanel.isVisible()) proveedorPanel.setVisible(true);
 	}
 	protected void actionPerformedBtnModificar(ActionEvent arg0) {
@@ -339,7 +342,7 @@ public class guiproveedores extends JFrame implements ActionListener {
 	}
 	
 	private void guardar(){
-		if(txtCodigo.isEnabled()){
+		if(txtCodigo.isEditable()){
 			Proveedor pro = jdbc.buscarPorCodigo(txtCodigo.getText());
 			if(pro != null){
 				JOptionPane.showMessageDialog(null, "Ya existe un proveedor con ese codigo, porfavor cambie el codigo.");
@@ -371,7 +374,7 @@ public class guiproveedores extends JFrame implements ActionListener {
 	private void llenarCamposPorCodigo(String codProveedor){
 		if(!codProveedor.isEmpty()){			
 			Proveedor proveedorEditar = jdbc.buscarPorCodigo(codProveedor);
-			txtCodigo.setEnabled(false);
+			txtCodigo.setEditable(false);
 			if(proveedorEditar != null){
 				txtCodigo.setText(proveedorEditar.getCodigo());
 				txtRuc.setText(proveedorEditar.getRUC());

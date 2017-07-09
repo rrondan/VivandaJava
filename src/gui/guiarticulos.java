@@ -207,6 +207,7 @@ public class guiarticulos extends JFrame implements ActionListener {
 	protected void actionPerformedBtnAgregar(ActionEvent arg0) {
 			articuloPanel.setVisible(true);			
 			limpiarCampos();			
+			txtCodigo.setEditable(true);
 	}
 	protected void actionPerformedBtnModificar(ActionEvent arg0) {
 			int index = tblarticulo.getSelectedRow();
@@ -334,7 +335,7 @@ public class guiarticulos extends JFrame implements ActionListener {
 	private void llenarCamposPorCodigo(String codArticulo){
 		if(!codArticulo.isEmpty()){			
 			Articulo articuloEdit = jdbc.buscarPorCodigo(codArticulo);
-			txtCodigo.setEnabled(false);
+			txtCodigo.setEditable(false);
 			if(articuloEdit != null){
 				txtCodigo.setText(articuloEdit.getCodigo());
 				txtDescripcion.setText(articuloEdit.getDescripcion());
@@ -344,7 +345,7 @@ public class guiarticulos extends JFrame implements ActionListener {
 		}
 	}
 	private void grabar(){
-		if(txtCodigo.isEnabled()){
+		if(txtCodigo.isEditable()){
 			Articulo art = jdbc.buscarPorCodigo(txtCodigo.getText());
 			if(art != null){
 				JOptionPane.showMessageDialog(null, "Ya existe un articulo con ese codigo, porfavor cambie el codigo.");

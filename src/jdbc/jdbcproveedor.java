@@ -20,7 +20,7 @@ public class jdbcproveedor {
 	}
 	
 	public List<Proveedor> listarTodo(){
-		List<Proveedor> proveedores = new ArrayList();
+		List<Proveedor> proveedores = new ArrayList<>();
 		try {
 			Connection cn = c.getConnection();
 			String sql="Select * from proveedores";			

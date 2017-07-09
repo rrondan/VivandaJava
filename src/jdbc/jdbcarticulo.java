@@ -1,7 +1,5 @@
 package jdbc;
 
-import java.io.Console;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -24,7 +22,7 @@ public class jdbcarticulo{
 	}
 	
 	public List<Articulo> listarTodo(){
-		List<Articulo> articulos = new ArrayList();
+		List<Articulo> articulos = new ArrayList<>();
 		try {
 			Connection cn = c.getConnection();
 			String sql="select a.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque";			
@@ -78,6 +76,26 @@ public class jdbcarticulo{
 			e.printStackTrace();
 		}
 		return rs;
+	}
+	
+	public List<Articulo> buscarXDes(String descripcion){
+		List<Articulo> articulos = new ArrayList<>();
+		try {					
+			Connection cn = c.getConnection();
+			String sql= "select a.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque where LOWER(a.des_articulo) like ?";
+			PreparedStatement ps =(PreparedStatement) cn.prepareStatement(sql);
+			ps.setString(1, "%" + descripcion.toLowerCase() + "%");
+			ResultSet rs=ps.executeQuery();
+			Articulo art;
+			while(rs.next()){
+				art = new Articulo(rs.getString("cod_articulo"),rs.getString("des_articulo"),rs.getString("categoria"),rs.getString("empaque"));
+				articulos.add(art);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return articulos;
 	}
 	
 	public void guardar(String cod,String des,int cat,int emp){
