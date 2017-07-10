@@ -26,7 +26,10 @@ public class Compra {
 		this.proveedor = proveedor;
 		this.precioTotal = precioTotal;
 		this.detalleCompra = detalleCompra;
-		if(this.detalleCompra.isEmpty()) this.precioTotal = 0;
+		if(detalleCompra != null){
+			if(this.detalleCompra.isEmpty()) 
+				this.precioTotal = 0;
+		}
 		this.id = id;
 		this.fecha = fecha;
 	}
