@@ -358,7 +358,7 @@ public class guiarticulos extends JFrame implements ActionListener {
 		if(txtCodigo.isEditable()){
 			Articulo art = jdbc.buscarPorCodigo(txtCodigo.getText());
 			if(art != null){
-				JOptionPane.showMessageDialog(null, "Ya existe un articulo con ese codigo, porfavor cambie el codigo.");
+				JOptionPane.showMessageDialog(null, "No puedes registrar un mismo codigo 2 veces.");
 				return;
 			}
 		}

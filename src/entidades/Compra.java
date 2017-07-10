@@ -1,5 +1,6 @@
 package entidades;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,8 @@ public class Compra {
 	private Proveedor proveedor;
 	private double precioTotal;
 	private List<DetalleCompra> detalleCompra;
+	private Date fecha;
+	private String fechaString;
 	
 	public Compra() {
 		super();
@@ -18,12 +21,14 @@ public class Compra {
 		this.detalleCompra = new ArrayList<>();
 		this.precioTotal = 0;
 	}
-	public Compra(Proveedor proveedor, double precioTotal, List<DetalleCompra> detalleCompra,int id) {
+	public Compra(Proveedor proveedor, double precioTotal, List<DetalleCompra> detalleCompra,int id, Date fecha) {
 		super();
 		this.proveedor = proveedor;
 		this.precioTotal = precioTotal;
 		this.detalleCompra = detalleCompra;
+		if(this.detalleCompra.isEmpty()) this.precioTotal = 0;
 		this.id = id;
+		this.fecha = fecha;
 	}
 	public Proveedor getProveedor() {
 		return proveedor;
@@ -55,6 +60,14 @@ public class Compra {
 		}
 		detalleCompra.add(detalle);
 	}
+	public void updateDetallecompra(DetalleCompra detalle){
+		for(int i = 0; i < this.detalleCompra.size(); i++){
+			if(this.detalleCompra.get(i).getId() == detalle.getId()){
+				detalleCompra.set(i, detalle); 
+				break;
+			}
+		}
+	}
 	public void removeDetalleCompra(int posicion){
 		if(detalleCompra.get(posicion) == null){
 			JOptionPane.showMessageDialog(null, "Hubo un eliminar su detalle");
@@ -62,7 +75,24 @@ public class Compra {
 		}
 		detalleCompra.remove(posicion);
 	}
-	public void sumarAlTotal(double precioAgregar){
-		this.precioTotal += precioAgregar;
+	public void CalcularTotal(){
+		this.precioTotal = 0;
+		for (DetalleCompra detalle : this. detalleCompra) {
+			this.precioTotal += (detalle.getPrecioUnitario() * detalle.getCantidad());
+		}
 	}
+	public Date getFecha() {
+		return fecha;
+	}
+	public void setFecha(Date fecha) {
+		this.fecha = fecha;
+	}
+	public String getFechaString() {
+		return fechaString;
+	}
+	public void setFechaString(String fechaString) {
+		this.fechaString = fechaString;
+	}
+	
+	
 }
