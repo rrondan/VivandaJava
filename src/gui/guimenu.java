@@ -25,6 +25,9 @@ public class guimenu extends JFrame implements ActionListener{
 	private guiarticulos articulos;
 	private guiproveedores proveedores;
 	private guicompras compras;
+	private guiReporteCompra reporte;
+	
+	private JButton btnReporte;
 
 	/**
 	 * Launch the application.
@@ -49,6 +52,7 @@ public class guimenu extends JFrame implements ActionListener{
 		articulos = new guiarticulos();
 		proveedores = new guiproveedores();
 		compras = new guicompras();
+		reporte = new guiReporteCompra();
 		setTitle("Menu");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -69,16 +73,24 @@ public class guimenu extends JFrame implements ActionListener{
 		
 		btnProveedores = new JButton("Proveedores");
 		btnProveedores.addActionListener(this);
-		btnProveedores.setBounds(288, 59, 113, 48);
+		btnProveedores.setBounds(39, 143, 113, 48);
 		contentPane.add(btnProveedores);
 		
 		btnCompras = new JButton("Compras");
 		btnCompras.addActionListener(this);
-		btnCompras.setBounds(162, 59, 113, 48);
+		btnCompras.setBounds(222, 59, 113, 48);
 		contentPane.add(btnCompras);
+		
+		btnReporte = new JButton("Reporte");
+		btnReporte.addActionListener(this);
+		btnReporte.setBounds(222, 143, 113, 48);
+		contentPane.add(btnReporte);
 	}
 
 	public void actionPerformed(ActionEvent arg0) {
+		if (arg0.getSource() == btnReporte) {
+			actionPerformedBtnReporte(arg0);
+		}
 		if (arg0.getSource() == btnArticulos) {
 			actionPerformedBtnArticulos(arg0);
 		}
@@ -98,5 +110,7 @@ public class guimenu extends JFrame implements ActionListener{
 	protected void actionPerformedBtnCompras(ActionEvent arg0) {
 		compras.setVisible(true);
 	}
-	
+	protected void actionPerformedBtnReporte(ActionEvent arg0) {
+		reporte.setVisible(true);
+	}
 }

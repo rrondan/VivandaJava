@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import entidades.Articulo;
@@ -266,6 +267,22 @@ public class guiproveedores extends JFrame implements ActionListener {
 		modelo.addColumn("Telefono");
 		modelo.addColumn("Correo");
 		tblProveedores.setModel(modelo);
+		
+		tblProveedores.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+		DefaultTableCellRenderer centro = new DefaultTableCellRenderer();
+		centro.setHorizontalAlignment(JLabel.CENTER);
+
+		tblProveedores.getColumnModel().getColumn(0).setMaxWidth(60);
+		tblProveedores.getColumnModel().getColumn(0).setCellRenderer(centro);
+		tblProveedores.getColumnModel().getColumn(1).setPreferredWidth(110);
+		tblProveedores.getColumnModel().getColumn(1).setCellRenderer(centro);
+		tblProveedores.getColumnModel().getColumn(2).setPreferredWidth(190);
+		tblProveedores.getColumnModel().getColumn(2).setCellRenderer(centro);
+		tblProveedores.getColumnModel().getColumn(3).setPreferredWidth(170);
+		tblProveedores.getColumnModel().getColumn(3).setCellRenderer(centro);
+		tblProveedores.getColumnModel().getColumn(4).setPreferredWidth(150);
+		tblProveedores.getColumnModel().getColumn(4).setCellRenderer(centro);
+
 	}	
 	private void limpiartabla(){
 		if (modelo.getRowCount() > 0) {

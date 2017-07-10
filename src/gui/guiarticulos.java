@@ -295,6 +295,8 @@ public class guiarticulos extends JFrame implements ActionListener {
 		tblarticulo.getColumnModel().getColumn(0).setCellRenderer(centro);
 		tblarticulo.getColumnModel().getColumn(1).setPreferredWidth(150);
 		tblarticulo.getColumnModel().getColumn(1).setCellRenderer(centro);
+		tblarticulo.getColumnModel().getColumn(2).setPreferredWidth(100);
+		tblarticulo.getColumnModel().getColumn(2).setCellRenderer(centro);
 
 	}	
 	private void limpiartabla(){
