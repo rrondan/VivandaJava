@@ -8,7 +8,10 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.sql.Date;
 import java.sql.ResultSet;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -72,6 +75,7 @@ public class guicompras extends JFrame implements ActionListener {
 	private JTextField txtCategoria;
 	private JTextField txtEmpaque;
 	private JLabel lblPrecioUnitario;
+	private JLabel lblRegistroDeDetalle;
 	private JTextField txtPrecioUnitario;
 	private JLabel lblCantidad;
 	private JTextField txtCantidad;
@@ -85,7 +89,10 @@ public class guicompras extends JFrame implements ActionListener {
 	private JButton btnSeleccionar;
 	private JButton btnCancelarAvanzada;
 	private JTable tblArticulos;
-	
+	private UtilDateModel datePickerModel;
+	private JDatePickerImpl datePicker;
+	private JLabel lblFecha;
+	private JButton btnModificarDetalle;
 	
 	private AutocompleteJComboBox  cbRzSocial;	
 	private DefaultTableModel modeloTblCompras;
@@ -96,10 +103,12 @@ public class guicompras extends JFrame implements ActionListener {
 	private jdbccompra jdbcCompra;
 	private List<Compra> compras;
 	private jdbcarticulo jdbcArticulo;
-	private List<Articulo> articulos;
+	private List<Articulo> articulos;	
 	private Compra compraSeleccionado;
 	private Articulo articuloSeleccionado;
-	private JLabel lblFecha;
+	private DetalleCompra detalleCompraSeleccionado;
+	private boolean estoyEditandoDetalleCompra;
+	
 	
 	/**
 	 * Launch the application.
@@ -125,19 +134,12 @@ public class guicompras extends JFrame implements ActionListener {
 		jdbcProveedor = new jdbcproveedor();
 		jdbcCompra = new jdbccompra();
 		jdbcArticulo = new jdbcarticulo();
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds(40, 40, 843, 658);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
-		UtilDateModel model = new UtilDateModel();
-		Properties p = new Properties();
-		p.put("text.today", "Today");
-		p.put("text.month", "Month");
-		p.put("text.year", "Year");
-		JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
 		
 		regCompraPanel = new JPanel();
 		regCompraPanel.setBounds(10, 255, 471, 353);		
@@ -199,12 +201,12 @@ public class guicompras extends JFrame implements ActionListener {
 		tblDetalleCompra.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		btnAgregarDetalle = new JButton("Agregar");
-		btnAgregarDetalle.setBounds(369, 130, 92, 44);
+		btnAgregarDetalle.setBounds(371, 132, 92, 44);
 		btnAgregarDetalle.addActionListener(this);
 		regCompraPanel.add(btnAgregarDetalle);
 		
 		btnEliminarDetalle = new JButton("Eliminar");
-		btnEliminarDetalle.setBounds(369, 185, 92, 44);
+		btnEliminarDetalle.setBounds(371, 224, 92, 44);
 		btnEliminarDetalle.addActionListener(this);
 		regCompraPanel.add(btnEliminarDetalle);
 		
@@ -231,7 +233,14 @@ public class guicompras extends JFrame implements ActionListener {
 		JLabel lblRegistroDeCompras = new JLabel("Registro de Compras");
 		lblRegistroDeCompras.setBounds(23, 5, 134, 14);
 		regCompraPanel.add(lblRegistroDeCompras);
-		JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+		
+		datePickerModel = new UtilDateModel();
+		Properties p = new Properties();
+		p.put("text.today", "Today");
+		p.put("text.month", "Month");
+		p.put("text.year", "Year");
+		JDatePanelImpl datePanel = new JDatePanelImpl(datePickerModel, p);
+		datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
 		datePicker.setBounds(290, 24, 120, 26);
 		regCompraPanel.add(datePicker);
 		
@@ -239,26 +248,31 @@ public class guicompras extends JFrame implements ActionListener {
 		lblFecha.setBounds(245, 30, 55, 14);
 		regCompraPanel.add(lblFecha);
 		
+		btnModificarDetalle = new JButton("Modificar");
+		btnModificarDetalle.setBounds(371, 178, 92, 44);
+		btnModificarDetalle.addActionListener(this);
+		regCompraPanel.add(btnModificarDetalle);
+		
 		JLabel lblBuscarPorRazon = new JLabel("Buscar Compras por Razon Social de Proveedor");
-		lblBuscarPorRazon.setBounds(120, 11, 348, 14);
+		lblBuscarPorRazon.setBounds(149, 11, 348, 14);
 		contentPane.add(lblBuscarPorRazon);
 		
 		JLabel lblRazonSocial_1 = new JLabel("Razon Social: ");
-		lblRazonSocial_1.setBounds(120, 36, 81, 14);
+		lblRazonSocial_1.setBounds(149, 36, 81, 14);
 		contentPane.add(lblRazonSocial_1);
 		
 		txtRzSocialBuscar = new JTextField();
-		txtRzSocialBuscar.setBounds(211, 33, 197, 20);
+		txtRzSocialBuscar.setBounds(240, 33, 197, 20);
 		contentPane.add(txtRzSocialBuscar);
 		txtRzSocialBuscar.setColumns(10);
 		
 		btnBuscar = new JButton("Buscar");
-		btnBuscar.setBounds(418, 32, 89, 23);
+		btnBuscar.setBounds(447, 32, 89, 23);
 		btnBuscar.addActionListener(this);
 		contentPane.add(btnBuscar);
 		
 		scrollPaneCompras = new JScrollPane();
-		scrollPaneCompras.setBounds(120, 61, 387, 183);
+		scrollPaneCompras.setBounds(120, 61, 468, 183);
 		contentPane.add(scrollPaneCompras);
 		
 		tblCompras = new JTable();
@@ -266,22 +280,22 @@ public class guicompras extends JFrame implements ActionListener {
 		tblCompras.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				
 		btnListarTodos = new JButton("Listar Todos");
-		btnListarTodos.setBounds(517, 61, 116, 43);
+		btnListarTodos.setBounds(598, 61, 116, 43);
 		btnListarTodos.addActionListener(this);
 		contentPane.add(btnListarTodos);
 		
 		btnNuevo = new JButton("Nuevo");
-		btnNuevo.setBounds(517, 108, 116, 43);
+		btnNuevo.setBounds(598, 108, 116, 43);
 		btnNuevo.addActionListener(this);
 		contentPane.add(btnNuevo);
 		
 		btnModificar = new JButton("Modificar");
-		btnModificar.setBounds(517, 155, 116, 43);
+		btnModificar.setBounds(598, 155, 116, 43);
 		btnModificar.addActionListener(this);
 		contentPane.add(btnModificar);
 		
 		btnEliminarCompra = new JButton("Eliminar");
-		btnEliminarCompra.setBounds(517, 202, 116, 43);
+		btnEliminarCompra.setBounds(598, 202, 116, 43);
 		btnEliminarCompra.addActionListener(this);
 		contentPane.add(btnEliminarCompra);
 		
@@ -290,8 +304,8 @@ public class guicompras extends JFrame implements ActionListener {
 		contentPane.add(regDetallePanel);
 		regDetallePanel.setLayout(null);
 		
-		JLabel lblRegistroDeDetalle = new JLabel("Registro de Detalle");
-		lblRegistroDeDetalle.setBounds(10, 11, 116, 14);
+		lblRegistroDeDetalle = new JLabel("Registro Detalle de Compra");
+		lblRegistroDeDetalle.setBounds(10, 11, 256, 14);
 		regDetallePanel.add(lblRegistroDeDetalle);
 		
 		JLabel lblCodArticulo = new JLabel("Cod. Articulo:");
@@ -448,6 +462,9 @@ public class guicompras extends JFrame implements ActionListener {
 		if (e.getSource() == btnAgregarDetalle) {
 			actionPerformedBtnAgregarDetalle(e);
 		}
+		if(e.getSource() == btnModificarDetalle){
+			actionPerformedBtnModificarDetalle(e);
+		}
 		if (e.getSource() == btnEliminarDetalle) {
 			actionPerformedBtnEliminarDetalle(e);
 		}		
@@ -488,19 +505,27 @@ public class guicompras extends JFrame implements ActionListener {
 		llenarDataParaModificar();
 	}
 	protected void actionPerformedBtnEliminarCompra(ActionEvent e) {
-		
+		eliminarCompra();
 	}
 	protected void actionPerformedBtnListarTodos(ActionEvent e) {
+		txtRzSocialBuscar.setText("");
 		listarTodoCompras();
 	}
-	protected void actionPerformedBtnAgregarDetalle(ActionEvent e) {		
+	protected void actionPerformedBtnAgregarDetalle(ActionEvent e) {
+		lblRegistroDeDetalle.setText("Registro Detalle de Compra");
+		btnAgregar.setText("Agregar");
+		detalleCompraSeleccionado = new DetalleCompra();
+		estoyEditandoDetalleCompra = false;
 		regDetallePanel.setVisible(true);
 	}
+	protected void actionPerformedBtnModificarDetalle(ActionEvent e){		
+		llenarDataDetalleParaModificar();
+	}
 	protected void actionPerformedBtnEliminarDetalle(ActionEvent e) {
-		
+		eliminarDetalleCompra();
 	}
 	protected void actionPerformedBtnGuardar(ActionEvent e) {
-		
+		Guardar();
 	}
 	protected void actionPerformedBtnCancelar(ActionEvent e) {
 		regCompraPanel.setVisible(false);
@@ -538,19 +563,23 @@ public class guicompras extends JFrame implements ActionListener {
 				return false;
 			}
 		};
-		modeloTblCompras.addColumn("#");
+		modeloTblCompras.addColumn("Fecha");
+		modeloTblCompras.addColumn("RUC");
 		modeloTblCompras.addColumn("Razon Social Proveedor");
 		modeloTblCompras.addColumn("Total Compra");		
 		tblCompras.setModel(modeloTblCompras);
 		tblCompras.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment( JLabel.CENTER );		
-		tblCompras.getColumnModel().getColumn(0).setPreferredWidth(50);
-		tblCompras.getColumnModel().getColumn(0).setMaxWidth(50);
+		tblCompras.getColumnModel().getColumn(0).setPreferredWidth(80);
+		tblCompras.getColumnModel().getColumn(0).setMaxWidth(80);
 		tblCompras.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
-		tblCompras.getColumnModel().getColumn(2).setPreferredWidth(100);
-		tblCompras.getColumnModel().getColumn(2).setMaxWidth(100);
-		tblCompras.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
+		tblCompras.getColumnModel().getColumn(1).setPreferredWidth(90);
+		tblCompras.getColumnModel().getColumn(1).setMaxWidth(90);
+		tblCompras.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+		tblCompras.getColumnModel().getColumn(3).setPreferredWidth(90);
+		tblCompras.getColumnModel().getColumn(3).setMaxWidth(90);
+		tblCompras.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
 	}	
 	private void tablaDetalleCompra(){
 		modeloTblDetalle = new DefaultTableModel(){
@@ -591,10 +620,12 @@ public class guicompras extends JFrame implements ActionListener {
 	private void llenarTablaCompras(){
 		int index = 1;
 		for(Compra com : compras){
-			Object[] fila=new Object[3];		          
-			fila[0] = index;			
-			fila[1] = com.getProveedor().getRazonSocial();
-			fila[2] = com.getPrecioTotal();							
+			Object[] fila=new Object[4];		
+			DateFormat df = new SimpleDateFormat("dd/MM/yyyy");			
+			fila[0] = df.format(com.getFecha());
+			fila[1] = com.getProveedor().getRUC();
+			fila[2] = com.getProveedor().getRazonSocial();
+			fila[3] = com.getPrecioTotal();							
 			modeloTblCompras.addRow(fila);
 			index++;
 		}
@@ -606,11 +637,15 @@ public class guicompras extends JFrame implements ActionListener {
 					txtRuc.setText(proveedor.getRUC());
 					txtDireccion.setText(proveedor.getDireccion());
 					encontrado = true;
+					compraSeleccionado.setProveedor(proveedor);
 				}
 		}
 		if(!encontrado){
 			txtRuc.setText("");
 			txtDireccion.setText("");
+			if(compraSeleccionado != null){
+				compraSeleccionado.setProveedor(null);
+			}
 		}
 	}
 	
@@ -633,11 +668,32 @@ public class guicompras extends JFrame implements ActionListener {
 			cbRzSocial.setSelectedItem(compraSeleccionado.getProveedor().getRazonSocial());
 			llenarTablaDetalle(compraSeleccionado.getDetalleCompra());
 			txtTotal.setText(String.valueOf(compraSeleccionado.getPrecioTotal()));
+			int anio = compraSeleccionado.getFecha().getYear() + 1900;
+			int mes = compraSeleccionado.getFecha().getMonth();
+			int dia = compraSeleccionado.getFecha().getDate();
+			datePickerModel.setDate(anio, mes, dia);
+			datePickerModel.setSelected(true);
 		}else{
-			JOptionPane.showMessageDialog(null,"Seleccion un proveedor");
+			JOptionPane.showMessageDialog(null,"Seleccione una compra");
 		}	
 	}
-	
+	private void llenarDataDetalleParaModificar(){
+		int index = tblDetalleCompra.getSelectedRow();
+		if(index != -1){
+			if(!regDetallePanel.isVisible()) regDetallePanel.setVisible(true);
+			limpiarCamposRegistroDetalle();
+			lblRegistroDeDetalle.setText("Actualizar Detalle de Compra");
+			detalleCompraSeleccionado = compraSeleccionado.getDetalleCompra().get(index);
+			txtCodArticulo.setText(detalleCompraSeleccionado.getArticulo().getCodigo());
+			btnBuscarCodArticulo.doClick();
+			txtPrecioUnitario.setText(String.valueOf(detalleCompraSeleccionado.getPrecioUnitario()));
+			txtCantidad.setText(String.valueOf(detalleCompraSeleccionado.getCantidad()));
+			btnAgregar.setText("Editar");
+			estoyEditandoDetalleCompra = true;
+		}else {
+			JOptionPane.showMessageDialog(null,"Seleccione un detalle");
+		}
+	}	
 	private void limpiarCampos(){
 		txtRuc.setText("");
 		txtDireccion.setText("");
@@ -733,7 +789,7 @@ public class guicompras extends JFrame implements ActionListener {
 	private void BuscarArticuloPorCodigo(){
 		String codigoArt = txtCodArticulo.getText().trim(); 
 		if( codigoArt.length() >  0){
-			Articulo art = jdbcArticulo.buscarPorCodigo(codigoArt);
+			Articulo art = jdbcArticulo.buscarPorCodigoActivo(codigoArt);
 			if(art != null){
 				articuloSeleccionado = art;
 				LlenarDatosArticulo();
@@ -746,27 +802,31 @@ public class guicompras extends JFrame implements ActionListener {
 	}
 	private void AgregarDetalleDeCompra(){
 		if(articuloSeleccionado == null){
-			JOptionPane.showMessageDialog(null,"Escoja un articulo.");
+			JOptionPane.showMessageDialog(null,"Escoja un articulo."); 
 		}		
-		if(txtPrecioUnitario.getText().trim().length() == 0){
-			JOptionPane.showMessageDialog(null,"Escriba un precio unitario.");
+		else if(txtPrecioUnitario.getText().trim().length() == 0){
+			JOptionPane.showMessageDialog(null,"Escriba un precio unitario."); 
 		}
-		if(txtCantidad.getText().trim().length() == 0){
-			JOptionPane.showMessageDialog(null,"Escriba una cantidad.");
+		else if(txtCantidad.getText().trim().length() == 0){
+			JOptionPane.showMessageDialog(null,"Escriba una cantidad."); 
+		} else{
+			double precioUnitario = Double.parseDouble(txtPrecioUnitario.getText().trim());
+			int cantidad = Integer.parseInt(txtCantidad.getText().trim());
+			double precioTotal = precioUnitario * cantidad;			
+			detalleCompraSeleccionado.setArticulo(articuloSeleccionado);
+			detalleCompraSeleccionado.setPrecioUnitario(precioUnitario);
+			detalleCompraSeleccionado.setCantidad(cantidad);
+			if(!estoyEditandoDetalleCompra) {
+				compraSeleccionado.addDetalleCompra(detalleCompraSeleccionado);				
+			}else {
+				compraSeleccionado.updateDetallecompra(detalleCompraSeleccionado);
+			}
+			compraSeleccionado.CalcularTotal();
+			limpiarTablaDetalle();
+			llenarTablaDetalle(compraSeleccionado.getDetalleCompra());
+			txtTotal.setText(String.valueOf(compraSeleccionado.getPrecioTotal()));
+			limpiarCamposRegistroDetalle();
 		}
-		double precioUnitario = Double.parseDouble(txtPrecioUnitario.getText().trim());
-		int cantidad = Integer.parseInt(txtCantidad.getText().trim());
-		double precioTotal = precioUnitario * cantidad;
-		DetalleCompra detalleCompra = new DetalleCompra();
-		detalleCompra.setArticulo(articuloSeleccionado);
-		detalleCompra.setPrecioUnitario(precioUnitario);
-		detalleCompra.setCantidad(cantidad);
-		compraSeleccionado.addDetalleCompra(detalleCompra);
-		compraSeleccionado.sumarAlTotal(precioTotal);
-		limpiarTablaDetalle();
-		llenarTablaDetalle(compraSeleccionado.getDetalleCompra());
-		txtTotal.setText(String.valueOf(compraSeleccionado.getPrecioTotal()));
-		limpiarCamposRegistroDetalle();
 	}
 	private void limpiarCamposRegistroDetalle(){
 		txtCodArticulo.setText("");
@@ -780,4 +840,47 @@ public class guicompras extends JFrame implements ActionListener {
 		txtNomArticulo.setText("");
 		limpiarTablaArticulos();
 	}
+	
+	private void Guardar(){
+		String fecha =  datePicker.getJFormattedTextField().getText().toString();		
+		compraSeleccionado.setFechaString(fecha);
+		if(fecha.trim().length() == 0){
+			JOptionPane.showMessageDialog(null,"Escoja una fecha.");
+		}
+		else if(compraSeleccionado.getProveedor() == null){
+			JOptionPane.showMessageDialog(null,"Escoja un proveedor.");
+		}
+		else if(compraSeleccionado.getDetalleCompra().size() == 0){
+			JOptionPane.showMessageDialog(null,"Debe ingresar al menos un producto para la compra.");
+		}else{		
+			jdbcCompra.guardar(compraSeleccionado);			
+			btnCancelar.doClick();
+			btnListarTodos.doClick();
+		}
+	}
+	
+	private void eliminarCompra(){
+		int index = tblCompras.getSelectedRow();
+		if(index != -1){			
+			String mensaje = "¿Seguro que desea eliminar la compra seleccionada?";
+			String titulo = "Eliminar Compra";
+		    int respuesta = JOptionPane.showConfirmDialog(null, mensaje, titulo, JOptionPane.YES_NO_OPTION);
+		    if(respuesta == JOptionPane.YES_OPTION){
+		    	compraSeleccionado = compras.get(index);
+		    	jdbcCompra.eliminarCompra(compraSeleccionado);
+		    	btnListarTodos.doClick();
+		    }			
+		}else{
+			JOptionPane.showMessageDialog(null,"Seleccione una compra");
+		}	
+	}
+	private void eliminarDetalleCompra(){
+		int index = tblDetalleCompra.getSelectedRow();
+		if(index != -1){		    
+			compraSeleccionado.removeDetalleCompra(index);
+		}else{
+			JOptionPane.showMessageDialog(null,"Seleccione un detalle");
+		}
+	}
+	
 }

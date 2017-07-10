@@ -24,6 +24,7 @@ public class guimenu extends JFrame implements ActionListener{
 	private JButton btnCompras;
 	private guiarticulos articulos;
 	private guiproveedores proveedores;
+	private guicompras compras;
 
 	/**
 	 * Launch the application.
@@ -47,6 +48,7 @@ public class guimenu extends JFrame implements ActionListener{
 	public guimenu() {
 		articulos = new guiarticulos();
 		proveedores = new guiproveedores();
+		compras = new guicompras();
 		setTitle("Menu");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -94,7 +96,7 @@ public class guimenu extends JFrame implements ActionListener{
 		proveedores.setVisible(true);
 	}
 	protected void actionPerformedBtnCompras(ActionEvent arg0) {
-		JOptionPane.showMessageDialog(null, "Muy pronto estara implementado esta funcionalidad");
+		compras.setVisible(true);
 	}
 	
 }

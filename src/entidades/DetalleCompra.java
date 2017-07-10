@@ -10,6 +10,7 @@ public class DetalleCompra {
 		
 		public DetalleCompra() {
 			super();		
+			this.id = -1;
 		}
 		
 		public DetalleCompra(Articulo articulo, double precioUnitario, int cantidad, int id,int cod_compra) {

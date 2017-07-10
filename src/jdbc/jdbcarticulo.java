@@ -25,7 +25,7 @@ public class jdbcarticulo{
 		List<Articulo> articulos = new ArrayList<>();
 		try {
 			Connection cn = c.getConnection();
-			String sql="select a.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque";			
+			String sql="select a.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque where a.activo = 1";			
 			PreparedStatement ps =(PreparedStatement) cn.prepareStatement(sql);
 			
 			ResultSet rs=ps.executeQuery();
@@ -63,11 +63,32 @@ public class jdbcarticulo{
 		return art;
 	}
 	
+	public Articulo buscarPorCodigoActivo(String codigo){
+		art = null;
+		try {					
+			Connection cn = c.getConnection();
+			String sql="select a.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque where a.cod_articulo = ? and a.activo = 1";
+			PreparedStatement ps =(PreparedStatement) cn.prepareStatement(sql);
+			ps.setString(1, codigo);
+			ResultSet rs=ps.executeQuery();
+			// llenando la data
+			while(rs.next()){
+				art =new Articulo(rs.getString("cod_articulo"),rs.getString("des_articulo"),
+						rs.getString("categoria"),rs.getString("empaque"));				
+			}			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return art;
+	}
+	
+	
 	public ResultSet buscar(String descripcion){
 		ResultSet rs = null;
 		try {					
 			Connection cn = c.getConnection();
-			String sql= "select a.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque where LOWER(a.des_articulo) like ?";
+			String sql= "select a.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque where LOWER(a.des_articulo) like ? and a.activo = 1";
 			PreparedStatement ps =(PreparedStatement) cn.prepareStatement(sql);
 			ps.setString(1, "%" + descripcion.toLowerCase() + "%");
 			rs=ps.executeQuery();						
@@ -82,7 +103,7 @@ public class jdbcarticulo{
 		List<Articulo> articulos = new ArrayList<>();
 		try {					
 			Connection cn = c.getConnection();
-			String sql= "select a.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque where LOWER(a.des_articulo) like ?";
+			String sql= "select a.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque where LOWER(a.des_articulo) like ? and a.activo = 1";
 			PreparedStatement ps =(PreparedStatement) cn.prepareStatement(sql);
 			ps.setString(1, "%" + descripcion.toLowerCase() + "%");
 			ResultSet rs=ps.executeQuery();
@@ -110,12 +131,13 @@ public class jdbcarticulo{
 	public void registrar(String cod,String des,int cat,int emp){		
 		try {			
 			Connection cn = c.getConnection();
-			String sql="insert into articulo values(?,?,?,?)";
+			String sql="insert into articulo values(?,?,?,?,?)";
 			PreparedStatement ps=(PreparedStatement) cn.prepareStatement(sql);
 			ps.setString(1,cod);
 			ps.setString(2,des);
 			ps.setInt(3,cat);
 			ps.setInt(4, emp);
+			ps.setBoolean(5, true);
 			ps.executeUpdate();
 			JOptionPane.showMessageDialog(null, "articulo registrado");				
 		} catch (SQLException e) {
@@ -162,9 +184,10 @@ public class jdbcarticulo{
 		boolean respuesta = false;
 		try {
 			Connection cn = c.getConnection();
-			String sql="Delete from articulo where cod_articulo = ?";
+			String sql="Update articulo set activo = ? where cod_articulo = ?";
 			PreparedStatement ps=(PreparedStatement) cn.prepareStatement(sql);
-			ps.setString(1,cod);			
+			ps.setBoolean(1, false);
+			ps.setString(2,cod);			
 			ps.executeUpdate();
 			JOptionPane.showMessageDialog(null, "El articulo se ha eliminado.");
 			respuesta = true;			
