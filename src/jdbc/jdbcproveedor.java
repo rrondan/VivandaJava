@@ -23,7 +23,7 @@ public class jdbcproveedor {
 		List<Proveedor> proveedores = new ArrayList<>();
 		try {
 			Connection cn = c.getConnection();
-			String sql="Select * from proveedores";			
+			String sql="Select * from proveedores where activo = 1";			
 			PreparedStatement ps =(PreparedStatement) cn.prepareStatement(sql);			
 			ResultSet rs=ps.executeQuery();
 			// llenando la data
@@ -65,7 +65,7 @@ public class jdbcproveedor {
 		ResultSet rs = null;
 		try {					
 			Connection cn = c.getConnection();
-			String sql="select * from proveedores where LOWER(razonsocial) like ?";
+			String sql="select * from proveedores where LOWER(razonsocial) like ? and activo = 1";
 			PreparedStatement ps =(PreparedStatement) cn.prepareStatement(sql);
 			ps.setString(1, "%" + nom_proveedor.toLowerCase() + "%");
 			rs = ps.executeQuery();			
@@ -87,7 +87,7 @@ public class jdbcproveedor {
 	public void registrar(String cod, String raz, String ruc, String dir, String tel, String cor){		
 		try {			
 			Connection cn = c.getConnection();
-			String sql="insert into proveedores values(?,?,?,?,?,?)";
+			String sql="insert into proveedores values(?,?,?,?,?,?,?)";
 			PreparedStatement ps=(PreparedStatement) cn.prepareStatement(sql);
 			ps.setString(1,cod);
 			ps.setString(2,raz);
@@ -95,6 +95,7 @@ public class jdbcproveedor {
 			ps.setString(4,dir);
 			ps.setString(5,tel);
 			ps.setString(6,cor);			
+			ps.setBoolean(7, true);
 			ps.executeUpdate();
 			JOptionPane.showMessageDialog(null, "proveedor registrado");				
 		} catch (SQLException e) {
@@ -128,9 +129,10 @@ public class jdbcproveedor {
 		boolean respuesta = false;
 		try {
 			Connection cn = c.getConnection();
-			String sql="Delete from proveedores where cod_proveedor = ?";
+			String sql="Update proveedores set activo = ? where cod_proveedor = ?";
 			PreparedStatement ps=(PreparedStatement) cn.prepareStatement(sql);
-			ps.setString(1,cod);			
+			ps.setBoolean(1, false);
+			ps.setString(2,cod);			
 			ps.executeUpdate();
 			JOptionPane.showMessageDialog(null, "El proveedor se ha eliminado.");
 			respuesta = true;			
