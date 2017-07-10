@@ -57,7 +57,7 @@ public class guimenu extends JFrame implements ActionListener{
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		lblMantenimientos = new JLabel("Mantenimientos");
+		lblMantenimientos = new JLabel("O p c i o n e s");
 		lblMantenimientos.setFont(new Font("Tahoma", Font.BOLD, 18));
 		lblMantenimientos.setBounds(144, 11, 156, 41);
 		contentPane.add(lblMantenimientos);
