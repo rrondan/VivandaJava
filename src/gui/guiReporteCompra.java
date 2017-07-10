@@ -251,7 +251,7 @@ public class guiReporteCompra extends JFrame implements ActionListener{
 	private void llenarTablaReporte(){
 		for (Compra compra : compras) {
 			Object[] fila=new Object[5];          
-			fila[0] = "C" + String.format("%05d",compra.getId());
+			fila[0] = "C-" + String.format("%05d",compra.getId());
 			DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 			fila[1] = df.format( compra.getFecha());
 			fila[2] = compra.getProveedor().getRUC();          
