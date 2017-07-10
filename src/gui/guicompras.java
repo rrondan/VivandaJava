@@ -108,6 +108,7 @@ public class guicompras extends JFrame implements ActionListener {
 	private Articulo articuloSeleccionado;
 	private DetalleCompra detalleCompraSeleccionado;
 	private boolean estoyEditandoDetalleCompra;
+	private int indexDetalleEditado;
 	
 	
 	/**
@@ -499,6 +500,7 @@ public class guicompras extends JFrame implements ActionListener {
 	protected void actionPerformedBtnNuevo(ActionEvent e) {
 		compraSeleccionado = new Compra();
 		txtTotal.setText("0");
+		limpiarCampos();
 		regCompraPanel.setVisible(true);
 	}
 	protected void actionPerformedBtnModificar(ActionEvent e) {
@@ -516,6 +518,7 @@ public class guicompras extends JFrame implements ActionListener {
 		btnAgregar.setText("Agregar");
 		detalleCompraSeleccionado = new DetalleCompra();
 		estoyEditandoDetalleCompra = false;
+		indexDetalleEditado = -1;
 		regDetallePanel.setVisible(true);
 	}
 	protected void actionPerformedBtnModificarDetalle(ActionEvent e){		
@@ -690,6 +693,7 @@ public class guicompras extends JFrame implements ActionListener {
 			txtCantidad.setText(String.valueOf(detalleCompraSeleccionado.getCantidad()));
 			btnAgregar.setText("Editar");
 			estoyEditandoDetalleCompra = true;
+			indexDetalleEditado = index;
 		}else {
 			JOptionPane.showMessageDialog(null,"Seleccione un detalle");
 		}
@@ -813,19 +817,23 @@ public class guicompras extends JFrame implements ActionListener {
 			double precioUnitario = Double.parseDouble(txtPrecioUnitario.getText().trim());
 			int cantidad = Integer.parseInt(txtCantidad.getText().trim());
 			double precioTotal = precioUnitario * cantidad;			
+			if(detalleCompraSeleccionado == null){
+				detalleCompraSeleccionado = new DetalleCompra();
+			}
 			detalleCompraSeleccionado.setArticulo(articuloSeleccionado);
 			detalleCompraSeleccionado.setPrecioUnitario(precioUnitario);
 			detalleCompraSeleccionado.setCantidad(cantidad);
 			if(!estoyEditandoDetalleCompra) {
 				compraSeleccionado.addDetalleCompra(detalleCompraSeleccionado);				
 			}else {
-				compraSeleccionado.updateDetallecompra(detalleCompraSeleccionado);
+				compraSeleccionado.updateDetallecompra(detalleCompraSeleccionado,indexDetalleEditado);
 			}
 			compraSeleccionado.CalcularTotal();
 			limpiarTablaDetalle();
 			llenarTablaDetalle(compraSeleccionado.getDetalleCompra());
 			txtTotal.setText(String.valueOf(compraSeleccionado.getPrecioTotal()));
 			limpiarCamposRegistroDetalle();
+			detalleCompraSeleccionado = null;
 		}
 	}
 	private void limpiarCamposRegistroDetalle(){

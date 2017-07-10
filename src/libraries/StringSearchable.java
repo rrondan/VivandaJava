@@ -18,7 +18,7 @@ public class StringSearchable implements Searchable<String,String>{
 		for ( String s : terms ){
 			String nombre = s.toLowerCase();
 			String valor = value.toLowerCase();
-			if ( nombre.indexOf(valor) == 0 ){
+			if ( nombre.indexOf(valor) >= 0 ){
 				founds.add(s);
 			}
 		}

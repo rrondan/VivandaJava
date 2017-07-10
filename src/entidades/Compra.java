@@ -60,13 +60,8 @@ public class Compra {
 		}
 		detalleCompra.add(detalle);
 	}
-	public void updateDetallecompra(DetalleCompra detalle){
-		for(int i = 0; i < this.detalleCompra.size(); i++){
-			if(this.detalleCompra.get(i).getId() == detalle.getId()){
-				detalleCompra.set(i, detalle); 
-				break;
-			}
-		}
+	public void updateDetallecompra(DetalleCompra detalle, int posicion){
+		detalleCompra.set(posicion,detalle);
 	}
 	public void removeDetalleCompra(int posicion){
 		if(detalleCompra.get(posicion) == null){
