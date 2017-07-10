@@ -26,7 +26,7 @@ public class jdbcarticulo{
 		try {
 			Connection cn = c.getConnection();
 
-			String sql="select articulo.cod_articulo, articulo.des_articulo,categoria.descripcion as categoria,empaque.descripcion as empaque from articulo articulo inner join categoria categoria on articulo.id_categoria=categoria.idcategoria inner join empaque empaque on articulo.id_empaque=empaque.idempaque where a.activo = 1";			
+			String sql="select articulo.cod_articulo, articulo.des_articulo,categoria.descripcion as categoria,empaque.descripcion as empaque from articulo inner join categoria on articulo.id_categoria=categoria.idcategoria inner join empaque on articulo.id_empaque=empaque.idempaque where articulo.activo = 1";			
 			PreparedStatement ps =(PreparedStatement) cn.prepareStatement(sql);
 			
 			ResultSet rs=ps.executeQuery();
@@ -48,7 +48,7 @@ public class jdbcarticulo{
 		art = null;
 		try {					
 			Connection cn = c.getConnection();
-			String sql="select articulo.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque where a.cod_articulo = ?";
+			String sql="select a.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque where a.cod_articulo = ?";
 			PreparedStatement ps =(PreparedStatement) cn.prepareStatement(sql);
 			ps.setString(1, codigo);
 			ResultSet rs=ps.executeQuery();
@@ -68,7 +68,7 @@ public class jdbcarticulo{
 		art = null;
 		try {					
 			Connection cn = c.getConnection();
-			String sql="select articulo.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque where a.cod_articulo = ? and a.activo = 1";
+			String sql="select a.cod_articulo, a.des_articulo,c.descripcion as categoria,e.descripcion as empaque from articulo a inner join categoria c on a.id_categoria=c.idcategoria inner join empaque e on a.id_empaque=e.idempaque where a.cod_articulo = ? and a.activo = 1";
 			PreparedStatement ps =(PreparedStatement) cn.prepareStatement(sql);
 			ps.setString(1, codigo);
 			ResultSet rs=ps.executeQuery();
