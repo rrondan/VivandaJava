@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import entidades.Articulo;
@@ -286,6 +287,15 @@ public class guiarticulos extends JFrame implements ActionListener {
 		modelo.addColumn("Categoria");
 		modelo.addColumn("Empaque");
 		tblarticulo.setModel(modelo);
+		
+		tblarticulo.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+		DefaultTableCellRenderer centro = new DefaultTableCellRenderer();
+		centro.setHorizontalAlignment(JLabel.CENTER);
+		tblarticulo.getColumnModel().getColumn(0).setMaxWidth(60);
+		tblarticulo.getColumnModel().getColumn(0).setCellRenderer(centro);
+		tblarticulo.getColumnModel().getColumn(1).setPreferredWidth(150);
+		tblarticulo.getColumnModel().getColumn(1).setCellRenderer(centro);
+
 	}	
 	private void limpiartabla(){
 		if (modelo.getRowCount() > 0) {

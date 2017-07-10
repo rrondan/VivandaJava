@@ -634,7 +634,7 @@ public class guicompras extends JFrame implements ActionListener {
 			llenarTablaDetalle(compraSeleccionado.getDetalleCompra());
 			txtTotal.setText(String.valueOf(compraSeleccionado.getPrecioTotal()));
 		}else{
-			JOptionPane.showMessageDialog(null,"Seleccion un proveedor");
+			JOptionPane.showMessageDialog(null,"Seleccione un proveedor");
 		}	
 	}
 	
